@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Login - Spring Security Demo</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        .login-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px 20px 0 0;
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+        }
+        .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        .demo-accounts {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        .account-badge {
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .account-badge:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6 col-lg-5">
+                    <!-- Login Card -->
+                    <div class="login-card">
+                        <!-- Header -->
+                        <div class="login-header p-4 text-center">
+                            <h2 class="mb-0">
+                                <i class="bi bi-shield-lock"></i>
+                                Secure Login
+                            </h2>
+                            <p class="mb-0 mt-2 opacity-75">
+                                Spring Security Demo
+                            </p>
+                        </div>
+                        
+                        <!-- Login Form -->
+                        <div class="p-4">
+                            <!-- Error Message -->
+                            <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <span th:text="${errorMessage}">Error message</span>
+                            </div>
+                            
+                            <!-- Logout Success Message -->
+                            <div th:if="${logoutMessage}" class="alert alert-success" role="alert">
+                                <i class="bi bi-check-circle"></i>
+                                <span th:text="${logoutMessage}">Logout message</span>
+                            </div>
+                            
+                            <!-- Login Form -->
+                            <form th:action="@{/perform_login}" method="post">
+                                <!-- Username Field -->
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">
+                                        <i class="bi bi-person"></i> Username
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control form-control-lg" 
+                                           id="username" 
+                                           name="username" 
+                                           placeholder="Enter your username"
+                                           required 
+                                           autofocus>
+                                </div>
+                                
+                                <!-- Password Field -->
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">
+                                        <i class="bi bi-lock"></i> Password
+                                    </label>
+                                    <input type="password" 
+                                           class="form-control form-control-lg" 
+                                           id="password" 
+                                           name="password" 
+                                           placeholder="Enter your password"
+                                           required>
+                                </div>
+                                
+                                <!-- Remember Me -->
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           id="remember-me" 
+                                           name="remember-me">
+                                    <label class="form-check-label" for="remember-me">
+                                        Remember me
+                                    </label>
+                                </div>
+                                
+                                <!-- Login Button -->
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary btn-lg btn-login">
+                                        <i class="bi bi-box-arrow-in-right"></i>
+                                        Sign In
+                                    </button>
+                                </div>
+                            </form>
+                            
+                            <!-- Demo Accounts -->
+                            <div class="demo-accounts">
+                                <h6 class="text-center mb-3">
+                                    <i class="bi bi-info-circle"></i> Demo Accounts
+                                </h6>
+                                <p class="small text-muted text-center mb-3">
+                                    Click on any account to auto-fill the login form:
+                                </p>
+                                
+                                <div class="row g-2">
+                                    <!-- Admin Account -->
+                                    <div class="col-12">
+                                        <div class="account-badge badge bg-danger w-100 p-2 text-start" 
+                                             onclick="fillLogin('admin', 'admin123')">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <strong>Admin Account</strong><br>
+                                                    <small>admin / admin123</small>
+                                                </div>
+                                                <span class="badge bg-light text-dark">ADMIN</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Manager Account -->
+                                    <div class="col-12">
+                                        <div class="account-badge badge bg-warning w-100 p-2 text-start" 
+                                             onclick="fillLogin('manager', 'manager123')">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <strong>Manager Account</strong><br>
+                                                    <small>manager / manager123</small>
+                                                </div>
+                                                <span class="badge bg-light text-dark">MANAGER</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- User Account -->
+                                    <div class="col-12">
+                                        <div class="account-badge badge bg-primary w-100 p-2 text-start" 
+                                             onclick="fillLogin('user', 'user123')">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <strong>User Account</strong><br>
+                                                    <small>user / user123</small>
+                                                </div>
+                                                <span class="badge bg-light text-dark">USER</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Back to Home -->
+                            <div class="text-center mt-3">
+                                <a th:href="@{/}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-house"></i> Back to Home
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // Function to auto-fill login form
+        function fillLogin(username, password) {
+            document.getElementById('username').value = username;
+            document.getElementById('password').value = password;
+            
+            // Add visual feedback
+            const usernameField = document.getElementById('username');
+            const passwordField = document.getElementById('password');
+            
+            // Highlight fields briefly
+            usernameField.style.backgroundColor = '#e3f2fd';
+            passwordField.style.backgroundColor = '#e3f2fd';
+            
+            setTimeout(() => {
+                usernameField.style.backgroundColor = '';
+                passwordField.style.backgroundColor = '';
+            }, 1000);
+        }
+        
+        // Auto-hide alert messages after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+        
+        // Add form validation feedback
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            
+            // Add real-time validation
+            usernameInput.addEventListener('input', function() {
+                if (this.value.length >= 3) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                    if (this.value.length > 0) {
+                        this.classList.add('is-invalid');
+                    }
+                }
+            });
+            
+            passwordInput.addEventListener('input', function() {
+                if (this.value.length >= 6) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                    if (this.value.length > 0) {
+                        this.classList.add('is-invalid');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

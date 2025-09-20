@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle} ?: 'Spring Security Demo'">Spring Security Demo</title>
+    
+    <!-- Bootstrap CSS for styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        /* Custom CSS styles */
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px 0;
+            margin-top: 50px;
+        }
+        .role-badge {
+            font-size: 0.8em;
+        }
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 0;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <!-- Brand/Logo -->
+            <a class="navbar-brand" th:href="@{/}">
+                <i class="bi bi-shield-lock"></i> Spring Security Demo
+            </a>
+            
+            <!-- Mobile menu toggle -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <!-- Navigation Links -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">
+                            <i class="bi bi-house"></i> Home
+                        </a>
+                    </li>
+                    
+                    <!-- Links for authenticated users -->
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <a class="nav-link" th:href="@{/dashboard}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    
+                    <!-- User area - requires USER role -->
+                    <li class="nav-item" sec:authorize="hasRole('USER')">
+                        <a class="nav-link" th:href="@{/user}">
+                            <i class="bi bi-person"></i> User Area
+                        </a>
+                    </li>
+                    
+                    <!-- Management area - requires MANAGER or ADMIN role -->
+                    <li class="nav-item" sec:authorize="hasAnyRole('MANAGER', 'ADMIN')">
+                        <a class="nav-link" th:href="@{/management}">
+                            <i class="bi bi-gear"></i> Management
+                        </a>
+                    </li>
+                    
+                    <!-- Admin area - requires ADMIN role -->
+                    <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                        <a class="nav-link" th:href="@{/admin}">
+                            <i class="bi bi-shield-exclamation"></i> Admin
+                        </a>
+                    </li>
+                </ul>
+                
+                <!-- User info and authentication controls -->
+                <ul class="navbar-nav">
+                    <!-- Show when not authenticated -->
+                    <li class="nav-item" sec:authorize="!isAuthenticated()">
+                        <a class="nav-link" th:href="@{/login}">
+                            <i class="bi bi-box-arrow-in-right"></i> Login
+                        </a>
+                    </li>
+                    
+                    <!-- Show when authenticated -->
+                    <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> 
+                            <span sec:authentication="name">Username</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <h6 class="dropdown-header">
+                                    Roles: 
+                                    <span sec:authentication="authorities" class="role-badge"></span>
+                                </h6>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="bi bi-box-arrow-right"></i> Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main>
+        <!-- Alert messages -->
+        <div class="container mt-3">
+            <!-- Success message -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i> 
+                <span th:text="${successMessage}">Success message</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <!-- Error message -->
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle"></i> 
+                <span th:text="${errorMessage}">Error message</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <!-- Info message -->
+            <div th:if="${infoMessage}" class="alert alert-info alert-dismissible fade show" role="alert">
+                <i class="bi bi-info-circle"></i> 
+                <span th:text="${infoMessage}">Info message</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+
+        <!-- Page Content - This will be replaced by individual templates -->
+        <div layout:fragment="content">
+            <!-- Default content if no fragment is provided -->
+            <div class="container mt-5">
+                <div class="text-center">
+                    <h1>Welcome to Spring Security Demo</h1>
+                    <p class="lead">This is the base template content.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer bg-light mt-auto">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <p class="mb-0">
+                        <i class="bi bi-shield-lock"></i> 
+                        Spring Security Basic Demo - 
+                        <span class="text-muted">Built with Spring Boot & Spring Security</span>
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <span class="text-muted">
+                        <span sec:authorize="isAuthenticated()">
+                            Welcome, <strong sec:authentication="name">User</strong>!
+                        </span>
+                        <span sec:authorize="!isAuthenticated()">
+                            <a th:href="@{/login}">Please login</a>
+                        </span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+        
+        // Add active class to current nav item
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+            
+            navLinks.forEach(function(link) {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+
+    <!-- Additional scripts can be added by individual templates -->
+    <div layout:fragment="scripts"></div>
+</body>
+</html>

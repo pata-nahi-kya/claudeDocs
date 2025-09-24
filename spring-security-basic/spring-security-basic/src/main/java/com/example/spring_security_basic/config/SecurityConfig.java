@@ -22,6 +22,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity // Enables Spring Security's web security support
 public class SecurityConfig {
 
+    private final PasswordEncoder passwordEncoder;
+
+    SecurityConfig(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
     /**
      * Password Encoder Bean
      * 
@@ -122,8 +128,10 @@ public class SecurityConfig {
                 .permitAll()
             )
             // Configure session management
+
             .sessionManagement(session -> session
                 .maximumSessions(1) // Allow only one session per user
+                
                 .maxSessionsPreventsLogin(false) // Don't prevent login, invalidate old session
             )
             // Configure remember-me functionality
